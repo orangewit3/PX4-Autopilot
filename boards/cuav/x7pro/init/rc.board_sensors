@@ -5,8 +5,8 @@
 board_adc start
 
 # SPI1
-#adis16470 -s start
-icm20689 -s -b 1 -R 2 start
+adis16470 -s -b 1 -R 2 start
+#icm20689 -s -b 1 -R 2 start
 
 # SPI2
 rm3100 -s -b 2 start
