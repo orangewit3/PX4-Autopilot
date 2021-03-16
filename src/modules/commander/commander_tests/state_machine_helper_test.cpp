@@ -43,6 +43,10 @@
 #include "../state_machine_helper.h"
 #include <unit_test.h>
 #include "../Arming/PreFlightCheck/PreFlightCheck.hpp"
+#include <lib/parameters/param.h>
+//#include <uORB/topics/vehicle_status.h>
+//#include <uORB/topics/vehicle_global_position.h>
+//#include <uORB/topics/commander_state.h>
 
 class StateMachineHelperTest : public UnitTest
 {
@@ -55,6 +59,7 @@ public:
 private:
 	bool armingStateTransitionTest();
 	bool mainStateTransitionTest();
+	bool navStateTransitionTest();
 };
 
 bool StateMachineHelperTest::armingStateTransitionTest()
@@ -535,10 +540,37 @@ bool StateMachineHelperTest::mainStateTransitionTest()
 	return true;
 }
 
+bool StateMachineHelperTest::navStateTransitionTest() {
+	// define params
+	struct commander_state_s internal_state = {};
+	internal_state.main_state = commander_state_s::MAIN_STATE_MANUAL;
+	struct vehicle_status_s status = {};
+	status.nav_state = vehicle_status_s::NAVIGATION_STATE_MANUAL;
+	float cust_lat;
+	float cust_long;
+	param_get(param_find("CUST_LAT"), &cust_lat);
+	param_get(param_find("CUST_LONG"), &cust_long);
+	struct vehicle_global_position_s global_pos = {};
+	global_pos.lat = (double) cust_lat;
+	global_pos.lon = (double) cust_long;
+
+	const struct vehicle_status_flags_s _status_flags{};
+
+	// check that state machine correctly updates nav state
+	bool ret = set_nav_state(&status, &global_pos, nullptr, &internal_state, nullptr, (link_loss_actions_t) NULL, false, false, _status_flags, false, (link_loss_actions_t) NULL, (offboard_loss_actions_t) NULL, (offboard_loss_rc_actions_t) NULL, (position_nav_loss_actions_t) NULL, 0.0f, cust_lat - 0.5f, cust_long + 0.5f);
+	
+	ut_compare("nav state did not change", ret, true);
+	ut_compare("nav state change is not custom", status.nav_state, vehicle_status_s::NAVIGATION_STATE_CUSTOM);
+	
+	return true;
+	
+}
+
 bool StateMachineHelperTest::run_tests()
 {
 	ut_run_test(armingStateTransitionTest);
 	ut_run_test(mainStateTransitionTest);
+	ut_run_test(navStateTransitionTest);
 
 	return (_tests_failed == 0);
 }

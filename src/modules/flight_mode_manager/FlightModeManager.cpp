@@ -97,7 +97,6 @@ void FlightModeManager::Run()
 
 	// generate setpoints on local position changes
 	vehicle_local_position_s vehicle_local_position;
-
 	if (_vehicle_local_position_sub.update(&vehicle_local_position)) {
 		const hrt_abstime time_stamp_now = hrt_absolute_time();
 		// Guard against too small (< 0.2ms) and too large (> 100ms) dt's.

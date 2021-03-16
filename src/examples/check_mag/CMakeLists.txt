@@ -30,34 +30,11 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 ############################################################################
-
-add_subdirectory(GeofenceBreachAvoidance)
-
 px4_add_module(
-	MODULE modules__navigator
-	MAIN navigator
+	MODULE examples__check_mag
+	MAIN check_mag
 	SRCS
-		navigator_main.cpp
-		navigator_mode.cpp
-		mission_block.cpp
-		mission.cpp
-		loiter.cpp
-		rtl.cpp
-		takeoff.cpp
-		land.cpp
-		precland.cpp
-		mission_feasibility_checker.cpp
-		geofence.cpp
-		enginefailure.cpp
-		gpsfailure.cpp
-		follow_target.cpp
-		custom_mode.cpp
+		check_mag.c
 	DEPENDS
-		git_ecl
-		ecl_geo
-		landing_slope
-		geofence_breach_avoidance
-		motion_planning
 	)
 
-px4_add_functional_gtest(SRC RangeRTLTest.cpp LINKLIBS modules__navigator modules__dataman)

@@ -999,3 +999,16 @@ PARAM_DEFINE_INT32(COM_ARM_ARSP_EN, 1);
  * @value 2 Enforce SD card presence
  */
 PARAM_DEFINE_INT32(COM_ARM_SDCARD, 1);
+
+
+/**
+ * Coordinate of interest for running custom mode
+*/
+PARAM_DEFINE_FLOAT(CUST_LAT, 22.7f);
+
+
+/**
+ * Cooridnate of interest Long
+*/
+PARAM_DEFINE_FLOAT(CUST_LONG, 10.8f);
+

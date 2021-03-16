@@ -404,16 +404,16 @@ void enable_failsafe(vehicle_status_s *status, bool old_failsafe, orb_advert_t *
 /**
  * Check failsafe and main status and set navigation status for navigator accordingly
  */
-bool set_nav_state(vehicle_status_s *status, actuator_armed_s *armed, commander_state_s *internal_state,
+bool set_nav_state(vehicle_status_s *status, vehicle_global_position_s *global_pos,  actuator_armed_s *armed, commander_state_s *internal_state,
 		   orb_advert_t *mavlink_log_pub, const link_loss_actions_t data_link_loss_act, const bool mission_finished,
 		   const bool stay_in_failsafe, const vehicle_status_flags_s &status_flags, bool landed,
 		   const link_loss_actions_t rc_loss_act, const offboard_loss_actions_t offb_loss_act,
 		   const offboard_loss_rc_actions_t offb_loss_rc_act,
 		   const position_nav_loss_actions_t posctl_nav_loss_act,
-		   const float param_com_rcl_act_t)
+		   const float param_com_rcl_act_t,
+		   const float custom_coord_lat, const float custom_coord_long)
 {
 	const navigation_state_t nav_state_old = status->nav_state;
-
 	const bool data_link_loss_act_configured = data_link_loss_act > link_loss_actions_t::DISABLED;
 	const bool rc_loss_act_configured = rc_loss_act > link_loss_actions_t::DISABLED;
 	const bool rc_lost = rc_loss_act_configured && (status->rc_signal_lost);
@@ -430,7 +430,13 @@ bool set_nav_state(vehicle_status_s *status, actuator_armed_s *armed, commander_
 	/* evaluate main state to decide in normal (non-failsafe) mode */
 	switch (internal_state->main_state) {
 	case commander_state_s::MAIN_STATE_ACRO:
-	case commander_state_s::MAIN_STATE_MANUAL:
+	case commander_state_s::MAIN_STATE_MANUAL: {
+		float dist = get_distance_to_next_waypoint(global_pos->lat, global_pos->lon, (double) custom_coord_lat, (double) custom_coord_long);
+		if (dist <= 100000.1f) {
+			status->nav_state = vehicle_status_s::NAVIGATION_STATE_CUSTOM;
+		}
+	   }
+	   break;
 	case commander_state_s::MAIN_STATE_RATTITUDE:
 	case commander_state_s::MAIN_STATE_STAB:
 	case commander_state_s::MAIN_STATE_ALTCTL:
