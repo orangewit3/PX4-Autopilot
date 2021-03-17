@@ -268,6 +268,8 @@ private:
 
 		// Geofrence
 		(ParamInt<px4::params::GF_ACTION>) _param_geofence_action,
+		(ParamFloat<px4::params::CUST_LAT>) _param_cust_lat,
+		(ParamFloat<px4::params::CUST_LONG>) _param_cust_long,
 
 		// Mavlink
 		(ParamInt<px4::params::MAV_COMP_ID>) _param_mav_comp_id,

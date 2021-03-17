@@ -43,11 +43,13 @@
 #define STATE_MACHINE_HELPER_H_
 
 #include <drivers/drv_hrt.h>
+#include <lib/ecl/geo/geo.h>
 
 #include "Arming/PreFlightCheck/PreFlightCheck.hpp"
 
 #include <uORB/uORB.h>
 #include <uORB/topics/vehicle_status.h>
+#include <uORB/topics/vehicle_global_position.h>
 #include <uORB/topics/battery_status.h>
 #include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/safety.h>
@@ -126,13 +128,13 @@ main_state_transition(const vehicle_status_s &status, const main_state_t new_mai
 
 void enable_failsafe(vehicle_status_s *status, bool old_failsafe, orb_advert_t *mavlink_log_pub, const char *reason);
 
-bool set_nav_state(vehicle_status_s *status, actuator_armed_s *armed, commander_state_s *internal_state,
+bool set_nav_state(vehicle_status_s *status, vehicle_global_position_s *global_pos, actuator_armed_s *armed, commander_state_s *internal_state,
 		   orb_advert_t *mavlink_log_pub, const link_loss_actions_t data_link_loss_act, const bool mission_finished,
 		   const bool stay_in_failsafe, const vehicle_status_flags_s &status_flags, bool landed,
 		   const link_loss_actions_t rc_loss_act, const offboard_loss_actions_t offb_loss_act,
 		   const offboard_loss_rc_actions_t offb_loss_rc_act,
 		   const position_nav_loss_actions_t posctl_nav_loss_act,
-		   const float param_com_rcl_act_t);
+		   const float param_com_rcl_act_t, const float custom_coord_lat, const float custom_coord_long);
 
 /*
  * Checks the validty of position data against the requirements of the current navigation

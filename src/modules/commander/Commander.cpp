@@ -1454,7 +1454,7 @@ void
 Commander::run()
 {
 	bool sensor_fail_tune_played = false;
-
+	PX4_INFO("called commander");
 	const param_t param_airmode = param_find("MC_AIRMODE");
 	const param_t param_rc_map_arm_switch = param_find("RC_MAP_ARM_SW");
 
@@ -2382,6 +2382,7 @@ Commander::run()
 			}
 		}
 
+		
 		/* Reset main state to loiter or auto-mission after takeoff is completed.
 		 * Sometimes, the mission result topic is outdated and the mission is still signaled
 		 * as finished even though we only just started with the takeoff. Therefore, we also
@@ -2531,9 +2532,15 @@ Commander::run()
 		}
 
 		_was_armed = _armed.armed;
+		
+		/* update the global position sub */
+		vehicle_global_position_s global_pos;
+		_global_position_sub.copy(&global_pos);
 
+	
 		/* now set navigation state according to failsafe and main state */
 		bool nav_state_changed = set_nav_state(&_status,
+						       &global_pos,
 						       &_armed,
 						       &_internal_state,
 						       &_mavlink_log_pub,
@@ -2546,7 +2553,10 @@ Commander::run()
 						       (offboard_loss_actions_t)_param_com_obl_act.get(),
 						       (offboard_loss_rc_actions_t)_param_com_obl_rc_act.get(),
 						       (position_nav_loss_actions_t)_param_com_posctl_navl.get(),
-						       _param_com_rcl_act_t.get());
+						       _param_com_rcl_act_t.get(),
+						       _param_cust_lat.get(),
+						       _param_cust_long.get()
+							);
 
 		if (nav_state_changed) {
 			_status.nav_state_timestamp = hrt_absolute_time();

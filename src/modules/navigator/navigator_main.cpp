@@ -84,7 +84,8 @@ Navigator::Navigator() :
 	_rtl(this),
 	_engineFailure(this),
 	_gpsFailure(this),
-	_follow_target(this)
+	_follow_target(this),
+	_customMode(this)
 {
 	/* Create a list of our possible navigation types */
 	_navigation_mode_array[0] = &_mission;
@@ -96,6 +97,7 @@ Navigator::Navigator() :
 	_navigation_mode_array[6] = &_land;
 	_navigation_mode_array[7] = &_precland;
 	_navigation_mode_array[8] = &_follow_target;
+	_navigation_mode_array[9] = &_customMode;
 
 	_handle_back_trans_dec_mss = param_find("VT_B_DEC_MSS");
 	_handle_reverse_delay = param_find("VT_B_REV_DEL");
@@ -177,9 +179,9 @@ Navigator::run()
 		}
 
 		perf_begin(_loop_perf);
-
+		
+		
 		orb_copy(ORB_ID(vehicle_status), _vehicle_status_sub, &_vstatus);
-
 		/* gps updated */
 		if (_gps_pos_sub.updated()) {
 			_gps_pos_sub.copy(&_gps_pos);
@@ -478,7 +480,7 @@ Navigator::run()
 
 		/* Do stuff according to navigation state set by commander */
 		NavigatorMode *navigation_mode_new{nullptr};
-
+		
 		switch (_vstatus.nav_state) {
 		case vehicle_status_s::NAVIGATION_STATE_AUTO_MISSION:
 			_pos_sp_triplet_published_invalid_once = false;
@@ -637,6 +639,10 @@ Navigator::run()
 		case vehicle_status_s::NAVIGATION_STATE_TERMINATION:
 		case vehicle_status_s::NAVIGATION_STATE_OFFBOARD:
 		case vehicle_status_s::NAVIGATION_STATE_STAB:
+		case vehicle_status_s::NAVIGATION_STATE_CUSTOM: {
+			navigation_mode_new = &_customMode;
+			break;
+		}
 		default:
 			navigation_mode_new = nullptr;
 			_can_loiter_at_sp = false;
